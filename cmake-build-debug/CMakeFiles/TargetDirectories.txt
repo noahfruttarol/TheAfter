@@ -1,0 +1,3 @@
+C:/Users/noahf/TheAfter/cmake-build-debug/CMakeFiles/TheAfter.dir
+C:/Users/noahf/TheAfter/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/noahf/TheAfter/cmake-build-debug/CMakeFiles/rebuild_cache.dir
