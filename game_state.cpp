@@ -32,43 +32,57 @@ void game_state::gen_level(point size) {
     gen_doors(size);
 }
 
-void game_state::gen_doors(point size) {
-    auto is_valid_point = [&](point q){
+bool is_valid_point(const point& size, point p){
         if(q.first >= size.first || q.first < 0)
             return false;
         else if (q.second >= size.second || q.second < 0)
             return false;
         return true;
-    };
+    }
+
+bool contains(const std::vector<point>& V, point p){
+    for(point q: V){
+        if(p.first == q.first && p.second == q.second)
+            return true;
+    }
+    return false;
+}
+
+std::vector<point> game_state::get_adjacent(const std::vector<point>& finished, point current,const point& size){
+    std::vector<point> adjacent {};
+    if(is_valid_point(size, std::make_pair(current.first + 1, current.second)) && !contains(finished, std::make_pair(current.first + 1, current.second)))
+        adjacent.push_back(std::make_pair(current.first + 1, current.second));
+
+    if(is_valid_point(size, std::make_pair(current.first - 1, current.second)) && !contains(finished, std::make_pair(current.first - 1, current.second)))
+        adjacent.push_back(std::make_pair(current.first - 1, current.second));
+
+    if(is_valid_point(size, std::make_pair(current.first, current.second + 1)) && !contains(finished, std::make_pair(current.first, current.second + 1)))
+        adjacent.push_back(std::make_pair(current.first, current.second + 1));
+
+    if(is_valid_point(size, std::make_pair(current.first, current.second - 1)) && !contains(finished, std::make_pair(current.first, current.second - 1)))
+        adjacent.push_back(std::make_pair(current.first, current.second - 1));
+    
+    return adjacent;
+}
+
+void game_state::gen_doors(point size) {
     //maze generation
     srand(time(0));
     point current {0,0};
     point p;
     int done_before = 1;
-    std::set<point> finished {current};
+    std::vector<point> finished {current};
     while(finished.size() < size.first*size.second) {
+
+        int index = finished.size() - 1;
         std::vector<point> adjacent {};
-
-        if(is_valid_point(std::make_pair(current.first + 1, current.second)) && !finished.contains(std::make_pair(current.first + 1, current.second)))
-            adjacent.push_back(std::make_pair(current.first + 1, current.second));
-
-        if(is_valid_point(std::make_pair(current.first - 1, current.second)) && !finished.contains(std::make_pair(current.first - 1, current.second)))
-            adjacent.push_back(std::make_pair(current.first - 1, current.second));
-
-        if(is_valid_point(std::make_pair(current.first, current.second + 1)) && !finished.contains(std::make_pair(current.first, current.second + 1)))
-            adjacent.push_back(std::make_pair(current.first, current.second + 1));
-
-        if(is_valid_point(std::make_pair(current.first, current.second - 1)) && !finished.contains(std::make_pair(current.first, current.second - 1)))
-            adjacent.push_back(std::make_pair(current.first, current.second - 1));
-
-        if(adjacent.size() == 0){
-            auto scuffed = finished.begin();
-            for (int i = 0; i < done_before && scuffed != finished.end(); ++i) {
-                current = *scuffed;
-                scuffed++;
-            }
-            continue;
+        while(adjacent.size() == 0 && index >= 0){
+            adjacent = get_adjacent(finished, finished.at(index), size);
+            current = finished.at(index);
+            index--;
         }
+        
+        if(index < 0)return;
 
         int edges = rand()%(adjacent.size()+2);
         switch (edges) {
@@ -79,16 +93,14 @@ void game_state::gen_doors(point size) {
                 edges = 1;
         }
 
-        point p = current;
-        for (int i = 0; i < edges; ++i) {
-            int j = rand()%adjacent.size();
-            p = adjacent.at(j);
-            adjacent.at(j) = adjacent.back();
-            adjacent.pop_back();
-            remove_wall(current, p);
-            finished.insert(p);
+        while(edges > 0){
+            int index = rand()%(adjacent.size());
+            point to_remove = adjacent.at();
+            adjacent.erase(adjacent.begin() + index);
+            remove_wall(current, to_remove);
+            edges--;
         }
-        current = p;
+        finished.push_back(current);
     }
 }
 
