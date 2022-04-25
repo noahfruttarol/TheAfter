@@ -6,6 +6,7 @@
 #define THEAFTER_ROOM_HPP
 #include "item.hpp"
 #include "enemy.hpp"
+#include <iostream>
 #include <vector>
 #include <string>
 #include <random>
@@ -23,6 +24,8 @@ public:
     room(int type, int level, int level_type, int diff);
 
     explicit room(std::string s);
+
+    void print();
 };
 
 

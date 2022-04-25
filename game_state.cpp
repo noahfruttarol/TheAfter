@@ -5,7 +5,7 @@
 
 game_state::game_state(std::string player_name, int diff): player_character{ player{player_name}}, difficulty(diff) {}
 
-bool operator<(std::pair<int, int> a, std::pair<int, int> b){
+bool operator<(point a, point b){
     if(a.first < b.first){
         return true;
     }else if(a.first > b.first){
@@ -13,6 +13,10 @@ bool operator<(std::pair<int, int> a, std::pair<int, int> b){
     }else{
         return a.second < b.second;
     }
+}
+
+bool operator==(point a, point b){
+    return a.first == b.first && a.second == b.second;
 }
 
 void game_state::gen_level(point size) {
@@ -95,7 +99,7 @@ void game_state::gen_doors(point size) {
 
         while(edges > 0){
             int index = rand()%(adjacent.size());
-            point to_remove = adjacent.at();
+            point to_remove = adjacent.at(index);
             adjacent.erase(adjacent.begin() + index);
             remove_wall(current, to_remove);
             edges--;
@@ -141,4 +145,12 @@ bool game_state::make_move(std::string move) {
     }
     current_room = current_level.at(location.first).at(location.second);
     return true;
+}
+
+bool game_state::is_at_exit() {
+    return location == exit;
+}
+
+void game_state::print_state() {
+    current_room->print();
 }

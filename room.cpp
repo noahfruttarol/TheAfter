@@ -20,3 +20,14 @@ room::room(std::string s) {
     is_path["down"] = false;
 }
 
+void room::print() {
+    std::cout << "You are in " << name << std::endl;
+    std::cout << "There is: " << std::endl;
+    int k {0};
+    for (auto i: items) {
+        k++;
+        std::cout << i.get_name() << ", ";
+        if(!k%3)
+            std::cout << std::endl;
+    }
+}

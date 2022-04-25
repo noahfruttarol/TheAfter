@@ -9,7 +9,6 @@
 #include "item.hpp"
 #include <string>
 #include <vector>
-#include <set>
 #include <utility>
 #include <memory>
 #include <cstdlib>
@@ -32,13 +31,19 @@ public:
     //constructor
     game_state(std::string player_name, int diff);
 
-    void gen_level(point size);
+    std::vector<point> get_adjacent(const std::vector<point>& finished, point current,const point& size);
 
     void gen_doors(point size);
 
     void remove_wall(point p, point q);
 
+    void gen_level(point size);
+
     bool make_move(std::string move);
+
+    bool is_at_exit();
+
+    void print_state();
 };
 
 

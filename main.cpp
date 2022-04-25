@@ -3,8 +3,17 @@
 #include <string>
 #include <utility>
 
-void run(game_state game){
-    game.gen_level(std::make_pair(5,4));
+void run(game_state& game){
+    std::pair<int, int> p {5,4};
+    game.game_state::gen_level(p);
+    while (!game.is_at_exit()){
+        std::string input {};
+        std::cout << "make move" << std::endl;
+        std::cin >> input;
+        game.make_move(input);
+        game.print_state();
+    }
+    std::cout << "You made it to the exit!";
 
 }
 
@@ -22,6 +31,7 @@ int main() {
     std::cout << "OK, generating game" << std::endl;
     game_state game {player, 1};
 
+    run(game);
 
     return 0;
 }
