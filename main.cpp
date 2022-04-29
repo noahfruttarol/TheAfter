@@ -5,13 +5,14 @@
 
 void run(game_state& game){
     std::pair<int, int> p {5,4};
-    game.game_state::gen_level(p);
+    game.gen_level(p);
+    //game.print_level();
     while (!game.is_at_exit()){
+        game.print_state();
         std::string input {};
         std::cout << "make move" << std::endl;
         std::cin >> input;
         game.make_move(input);
-        game.print_state();
     }
     std::cout << "You made it to the exit!";
 

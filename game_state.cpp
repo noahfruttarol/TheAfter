@@ -20,6 +20,7 @@ bool operator==(point a, point b){
 }
 
 void game_state::gen_level(point size) {
+    exit = std::make_pair(size.first - 1, size.second - 1);
     std::vector<std::vector<std::shared_ptr<room>>> map;
     for (int i = 0; i < size.first; ++i) {
         std::vector<std::shared_ptr<room>> row;
@@ -37,10 +38,15 @@ void game_state::gen_level(point size) {
 }
 
 bool is_valid_point(const point& size, point p){
-        if(q.first >= size.first || q.first < 0)
+        if(p.first >= size.first || p.first < 0) {
+            //std::cout << "first" << p.first << p.second << std::endl;
             return false;
-        else if (q.second >= size.second || q.second < 0)
+        }
+        else if (p.second >= size.second || p.second < 0) {
+            //std::cout << "second" << p.first << p.second << std::endl;
             return false;
+        }
+
         return true;
     }
 
@@ -54,62 +60,56 @@ bool contains(const std::vector<point>& V, point p){
 
 std::vector<point> game_state::get_adjacent(const std::vector<point>& finished, point current,const point& size){
     std::vector<point> adjacent {};
-    if(is_valid_point(size, std::make_pair(current.first + 1, current.second)) && !contains(finished, std::make_pair(current.first + 1, current.second)))
-        adjacent.push_back(std::make_pair(current.first + 1, current.second));
+    current.first--;
+    if(is_valid_point(size, current) && !contains(finished, current))
+        adjacent.push_back(current);
 
-    if(is_valid_point(size, std::make_pair(current.first - 1, current.second)) && !contains(finished, std::make_pair(current.first - 1, current.second)))
-        adjacent.push_back(std::make_pair(current.first - 1, current.second));
+    current.first++;
+    current.second--;
+    if(is_valid_point(size, current) && !contains(finished, current))
+        adjacent.push_back(current);
 
-    if(is_valid_point(size, std::make_pair(current.first, current.second + 1)) && !contains(finished, std::make_pair(current.first, current.second + 1)))
-        adjacent.push_back(std::make_pair(current.first, current.second + 1));
+    current.first++;
+    current.second++;
+    if(is_valid_point(size, current) && !contains(finished, current))
+        adjacent.push_back(current);
 
-    if(is_valid_point(size, std::make_pair(current.first, current.second - 1)) && !contains(finished, std::make_pair(current.first, current.second - 1)))
-        adjacent.push_back(std::make_pair(current.first, current.second - 1));
+    current.first--;
+    current.second++;
+    if(is_valid_point(size, current) && !contains(finished, current))
+        adjacent.push_back(current);
     
     return adjacent;
 }
 
-void game_state::gen_doors(point size) {
+void game_state::gen_doors(const point& size) {
     //maze generation
     srand(time(0));
     point current {0,0};
-    point p;
-    int done_before = 1;
-    std::vector<point> finished {current};
-    while(finished.size() < size.first*size.second) {
+    std::vector<point> finished;
+    finished.push_back(current);
+    while(finished.size() != size.first*size.second) {
+        //std::cout << "what is going on" << std::endl;
 
-        int index = finished.size() - 1;
+        int index = finished.size();
         std::vector<point> adjacent {};
-        while(adjacent.size() == 0 && index >= 0){
-            adjacent = get_adjacent(finished, finished.at(index), size);
-            current = finished.at(index);
+        while(adjacent.size() == 0 && index > 0){
             index--;
+            current = finished.at(index);
+            adjacent = get_adjacent(finished, current, size);
+            //std::cout << adjacent.size() << std::endl;
         }
         
         if(index < 0)return;
 
-        int edges = rand()%(adjacent.size()+2);
-        switch (edges) {
-            case 4:
-                edges = 2;
-                break;
-            default:
-                edges = 1;
-        }
-
-        while(edges > 0){
-            int index = rand()%(adjacent.size());
-            point to_remove = adjacent.at(index);
-            adjacent.erase(adjacent.begin() + index);
-            remove_wall(current, to_remove);
-            edges--;
-        }
-        finished.push_back(current);
+        index = rand() % adjacent.size();
+        remove_wall(current, adjacent.at(index));
+        finished.push_back(adjacent.at(index));
     }
 }
 
 void game_state::remove_wall(point p, point q) {
-    switch (p.first - q.first + 2 * (p.second - p.first)) {
+    switch (p.first - q.first + 2 * (p.second - q.second)) {
         case 1: //
             current_level.at(q.first).at(q.second)->is_path["down"] = true;
             current_level.at(p.first).at(p.second)->is_path["up"] = true;
@@ -153,4 +153,12 @@ bool game_state::is_at_exit() {
 
 void game_state::print_state() {
     current_room->print();
+}
+
+void game_state::print_level() {
+    for (int i = 0; i < current_level.size(); ++i) {
+        for (int j = 0; j < current_level.at(i).size(); ++j) {
+            current_level.at(i).at(j)->print();
+        }
+    }
 }

@@ -22,12 +22,19 @@ room::room(std::string s) {
 
 void room::print() {
     std::cout << "You are in " << name << std::endl;
-    std::cout << "There is: " << std::endl;
-    int k {0};
-    for (auto i: items) {
-        k++;
-        std::cout << i.get_name() << ", ";
-        if(!k%3)
-            std::cout << std::endl;
+    if(items.size()) {
+        std::cout << "There is: " << std::endl;
+        int k{0};
+        for (auto i: items) {
+            k++;
+            std::cout << i.get_name() << ", ";
+            if (!k % 3)
+                std::cout << std::endl;
+        }
+    }
+    std::cout << "You can go" << std::endl;
+    for (auto dir: is_path) {
+        if(dir.second)
+            std::cout << dir.first << std::endl;
     }
 }

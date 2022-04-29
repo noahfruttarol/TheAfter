@@ -33,7 +33,7 @@ public:
 
     std::vector<point> get_adjacent(const std::vector<point>& finished, point current,const point& size);
 
-    void gen_doors(point size);
+    void gen_doors(const point& size);
 
     void remove_wall(point p, point q);
 
@@ -44,6 +44,8 @@ public:
     bool is_at_exit();
 
     void print_state();
+
+    void print_level();
 };
 
 
